@@ -11,7 +11,7 @@ E-mail address: chiara.marzi3@unibo.it
 fractalbrain toolkit e-mail address: fractalbraintoolkit@gmail.com
 """
 
-def fract( subjid, image ):
+def fract( subjid, image, output_folder = None ):
     from fractalbrain.asofi import asofi
     import logging
     import os
@@ -29,7 +29,11 @@ def fract( subjid, image ):
     imagepath = os.path.dirname(image)
     if not imagepath or imagepath == '.':
         imagepath = os.getcwd()
-    log_file_name = imagepath+'/'+subjid+'_fractal_'+DATE+'_'+TIME
+    if output_folder is None:
+        log_file_name = imagepath+'/'+subjid+'_fractal_'+DATE+'_'+TIME
+    else:
+        log_file_name = output_folder+'/'+subjid+'/'+subjid+'_fractal_'+DATE+'_'+TIME
+        
     log = logging.getLogger(log_file_name)
     hdlr = logging.FileHandler(log_file_name+'.log', mode="w")
     formatter = logging.Formatter(fmt = '%(asctime)s - %(message)s', datefmt='%Y/%m/%d %H:%M:%S') 
@@ -40,7 +44,7 @@ def fract( subjid, image ):
     log.info('Started at %s', start_time_to_log)
     
     ### FRACTAL ANALYSIS ###
-    asofi(subjid, image)
+    asofi(subjid, image, output_folder)
     
     ### END TIME ###
     end_time = time.process_time()
@@ -79,6 +83,7 @@ if __name__ == "__main__":
                     )    
     parser.add_argument('prefix', metavar='prefix', help='the prefix name of the NifTI image that will be processed or a file containing a list of prefixes')
     parser.add_argument('image', metavar='image', help='the NifTI image that will be processed or a file containing a list of NifTI images. In the latter case, the fractal analysis will be performed on each NifTI image sequentially')
+    parser.add_argument('output_folder', nargs='?', default=None)
     args = parser.parse_args()
     
     ### CHECK IF THE USER PASSED DIRECTLY THE NIFTI IMAGE OR A LIST CONTAINING THE NIFTI IMAGES ###
@@ -91,7 +96,9 @@ if __name__ == "__main__":
         subjid=args.prefix
         print ("The NifTI image is: ", args.image)
         image=args.image
-        fract(subjid, image)
+        print ("The output_folder is: ", args.output_folder)
+        output_folder=args.output_folder
+        fract(subjid, image, output_folder )
         #fract(**vars(args))
     elif os.path.isfile(args.image) and os.path.isfile(args.prefix):
         print (args.image, "is a file containing a list of NifTI images and", args.prefix, "is a file containing a list of prefixes")
@@ -101,7 +108,7 @@ if __name__ == "__main__":
                 image = y.strip()
                 print ("subjid:", subjid)
                 print("image", image)
-                fract(subjid, image)
+                fract(subjid, image, output_folder)
             
     
     
