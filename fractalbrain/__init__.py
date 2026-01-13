@@ -18,3 +18,4 @@ __version__ = "1.0"
 from .fs_fract import fs_fract
 from .fract import fract
 from .asofi import asofi
+from .run_fract import run_fract
