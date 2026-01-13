@@ -29,10 +29,16 @@ def fract( subjid, image, output_folder = None ):
     imagepath = os.path.dirname(image)
     if not imagepath or imagepath == '.':
         imagepath = os.getcwd()
+
     if output_folder is None:
         log_file_name = imagepath+'/'+subjid+'_fractal_'+DATE+'_'+TIME
     else:
-        log_file_name = output_folder+'/'+subjid+'/'+subjid+'_fractal_'+DATE+'_'+TIME
+        subject_folder = os.path.join(output_folder, subjid)
+        
+        if not os.path.exists(subject_folder):
+            os.makedirs(subject_folder)
+            
+        log_file_name = os.path.join(subject_folder, subjid+'_fractal_'+DATE+'_'+TIME)
         
     log = logging.getLogger(log_file_name)
     hdlr = logging.FileHandler(log_file_name+'.log', mode="w")
