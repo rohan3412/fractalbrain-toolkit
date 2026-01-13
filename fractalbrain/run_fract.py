@@ -1,6 +1,6 @@
-fractalbrain.fract import fract
+from fractalbrain.fract import fract
 
-def run_fract(subjid, image, output_folder=None)
+def run_fract(subjid, image, output_folder=None):
     if image_extension == '.nii' or image_extension == '.nii.gz':
         print ("The prefix is: ", subjid)
         print ("The NifTI image is: ", image)
