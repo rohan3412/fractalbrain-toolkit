@@ -12,7 +12,7 @@ fractalbrain toolkit e-mail address: fractalbraintoolkit@gmail.com
 """
 
 # The asofi name was chosen as the acronym of Automated Selection of Fractal Indices
-def asofi( subjid, image ):
+def asofi( subjid, image , output_folder = None):
     from fpdf import FPDF
     import logging
     import math
@@ -24,6 +24,8 @@ def asofi( subjid, image ):
     import random
     import sklearn.metrics as skl
     import sys
+
+    
     
     
     ### MANAGEMENT OF INPUT FILES: PATH, FILE NAME, EXTENSION, ETC. ###
@@ -37,7 +39,11 @@ def asofi( subjid, image ):
     
     
     ### LOG FILE SETTING ###
-    log_file_name = imagepath+'/'+subjid+'_fractal'
+    if output_folder is None:
+        log_file_name = imagepath+'/'+subjid+'_fractal'
+    else:
+        log_file_name = output_folder+'/'+subjid+'/'+subjid+'_fractal'
+        
     log = logging.getLogger(log_file_name+'.asofi') 
     log.info('Started: image %s with prefix name %s', image, subjid)
     
@@ -150,11 +156,20 @@ def asofi( subjid, image ):
     plt.plot(np.log2(scales)[scales_indices[fsw_index,0]:scales_indices[fsw_index,1] + 1], np.polyval(coeffs_selected,np.log2(scales)[scales_indices[fsw_index,0]:scales_indices[fsw_index,1] + 1]))
     plt.xlabel('log $\epsilon$ (mm)')
     plt.ylabel('log N (-)')
-    plt.savefig(imagepath+'/'+subjid+'_'+imagename+'_FD_plot.png')
+    if output_folder is None:
+        plt.savefig(imagepath+'/'+subjid+'_'+imagename+'_FD_plot.png')
+    else:
+        plt.savefig(output_folder+'/'+subjid+'/'+subjid+'_'+imagename+'_FD_plot.png')
     plt.clf()
     
     ### CREATION OF A TXT FILE WITH FRACTAL ANALYSIS RESULTS ###
-    with open(imagepath+'/'+subjid+'_'+imagename+'_FractalIndices.txt', 'w') as f:
+
+    if output_folder is None:
+        txt_path = imagepath+'/'+subjid+'_'+imagename+'_FractalIndices.txt'
+    else:
+        txt_path = output_folder+'/'+subjid+'/'+subjid+'_'+imagename+'_FractalIndices.txt'
+    
+    with open(txt_path, 'w') as f:
         f.write("mfs (mm), %f\n" % mfs)
         f.write("Mfs (mm), %f\n" % Mfs)
         f.write("FD (-), %f\n" % FD)
@@ -169,7 +184,11 @@ def asofi( subjid, image ):
     pdf.cell(200, 10, txt="Mfs    "+str(Mfs)+" mm", ln=1, align="C")
     pdf.cell(200, 10, txt="FD    "+str(FD), ln=1, align="C")
     pdf.cell(200, 10, txt="R2adj    "+str(R2_adj), ln=1, align="C")
-    pdf.image(imagepath+'/'+subjid+'_'+imagename+'_FD_plot.png',x=60, w=100)
-    pdf.output(imagepath+'/'+subjid+'_'+imagename+'_FD_summary.pdf')
+    if output_folder is None:
+        pdf.image(imagepath+'/'+subjid+'_'+imagename+'_FD_plot.png',x=60, w=100)
+        pdf.output(imagepath+'/'+subjid+'_'+imagename+'_FD_summary.pdf')
+    else:
+        pdf.image(output_folder+'/'+subjid+'/'+subjid+'_'+imagename+'_FD_plot.png',x=60, w=100)
+        pdf.output(output_folder+'/'+subjid+'/'+subjid+'_'+imagename+'_FD_summary.pdf')
    
     return
