@@ -39,6 +39,15 @@ def asofi( subjid, image ):
     ### LOG FILE SETTING ###
     log_file_name = imagepath+'/'+subjid+'_fractal'
     log = logging.getLogger(log_file_name+'.asofi') 
+
+    if not log.hasHandlers():
+        log.setLevel(logging.INFO)
+        # Actually create the file on disk
+        fh = logging.FileHandler(log_file_name + '.log')
+        formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+        fh.setFormatter(formatter)
+        log.addHandler(fh)
+    
     log.info('Started: image %s with prefix name %s', image, subjid)
     
     ### NIFTI IMAGE LOADING ###
