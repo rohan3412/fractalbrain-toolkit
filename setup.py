@@ -23,7 +23,6 @@ setup(name='fractalbrain',
         'fpdf',
         'matplotlib',
         'nibabel',
-        'pandas',
-        'scikit-learn',    
+        'pandas',,    
     ],
      )
