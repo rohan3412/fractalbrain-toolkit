@@ -5,6 +5,7 @@ import nibabel as nib
 def run_fract(subjid, image, output_folder=None):
     if output_folder is None:
         print ("The output_folder is the current directory")
+        output_folder = os.getcwd()
     else:
         print ("The output_folder is: ", output_folder)
         
