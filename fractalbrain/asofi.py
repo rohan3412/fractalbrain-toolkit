@@ -142,7 +142,7 @@ def asofi(subjid, image, output_folder):
     plt.ylabel('count')
     plt.title('Box Count Stability across Random Offsets')
     plt.legend()
-    variance_path = os.path.join(subjid_dir, f"{subjid}_{imagename}_BoxCountVariance.png")
+    variance_path = os.path.join(subjid_dir, f"{subjid}_BoxCountVariance.png")
     plt.savefig(variance_path)
     plt.close()
 
@@ -156,7 +156,7 @@ def asofi(subjid, image, output_folder):
     plt.yscale('log', base=2)
     plt.xlabel('$\\epsilon$ (mm)')
     plt.ylabel('N (-)')
-    fdplot_path = os.path.join(subjid_dir, f"{subjid}_{imagename}_FD_plot.png")
+    fdplot_path = os.path.join(subjid_dir, f"{subjid}_FD_plot.png")
     plt.savefig(fdplot_path)
     plt.close()
 
@@ -220,8 +220,8 @@ def asofi(subjid, image, output_folder):
         else:
             fd_str = f"{l_fd:.4f}"
         details_text = (
-            f"Scale Step: {int(s)} voxels\n"
-            f"Physical Size: {s_mm:.2f} mm\n"
+            f"Scale Step: {int(s) * int(s)} voxels\n"
+            f"Physical Size: {s_mm:.2f} mm (box edge length)\n"
             f"Box Count (N): {count_str}\n"
             f"Local FD: {fd_str}"
         )
