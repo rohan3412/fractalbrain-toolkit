@@ -1,54 +1,38 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
+from fpdf import FPDF
+import math
+import matplotlib.pyplot as plt
+plt.rcParams.update({'figure.max_open_warning': 0})
+import nibabel as nib
+import numpy as np
+import os
+import random
+import sklearn.metrics as skl
+import sys
+from mpl_toolkits.mplot3d import Axes3D
+from mpl_toolkits.mplot3d.art3d import Poly3DCollection
+from matplotlib.patches import ConnectionPatch
+import matplotlib.gridspec as gridspec
+from skimage.measure import marching_cubes
 
-def asofi(subjid, image, output_folder=None):
-    from fpdf import FPDF
-    import logging
-    import math
-    import matplotlib.pyplot as plt
-    plt.rcParams.update({'figure.max_open_warning': 0})
-    import nibabel as nib
-    import numpy as np
-    import os
-    import random
-    import sklearn.metrics as skl
-    import sys
-    from mpl_toolkits.mplot3d import Axes3D
-    from mpl_toolkits.mplot3d.art3d import Poly3DCollection
-    from matplotlib.patches import ConnectionPatch
-    import matplotlib.gridspec as gridspec
-    from skimage.measure import marching_cubes
+def asofi(subjid, image, output_folder):
+    subjid_dir = os.path.join(output_folder, subjid)
+    os.makedirs(subjid_dir, exist_ok=True)
+    
+    out_dir = subjid_dir
 
-    print("Loading", image, "image...")
-    imagepath = os.path.dirname(image)
-    if not imagepath or imagepath == '.':
-        imagepath = os.getcwd()
-    imagefile = os.path.basename(image)
-    imagename, _ = os.path.splitext(os.path.splitext(imagefile)[0])
-
-    if output_folder is None:
-        out_dir = imagepath
-        subjid_dir = imagepath
-    else:
-        subjid_dir = os.path.join(output_folder, subjid)
-        os.makedirs(subjid_dir, exist_ok=True)
-        out_dir = subjid_dir
-
-    log_file_name = os.path.join(out_dir, subjid + '_fractal')
-    log = logging.getLogger(log_file_name + '.asofi')
-    log.info('Started: image %s with prefix name %s', image, subjid)
+    print('Started: image with prefix name %s', subjid)
 
     img = nib.load(image)
     nii_header = img.header
     imageloaded = img.get_fdata()
 
     voxels_size = nii_header['pixdim'][1:4]
-    log.info('The voxel size is %s x %s x %s mm^3', voxels_size[0], voxels_size[1], voxels_size[2])
+    print('The voxel size is %s x %s x %s mm^3', voxels_size[0], voxels_size[1], voxels_size[2])
     if voxels_size[0] != voxels_size[1] or voxels_size[0] != voxels_size[2] or voxels_size[1] != voxels_size[2]:
         sys.exit('The voxel is not isotropic! Exit.')
 
     L_min = voxels_size[0]
-    log.info('The minimum size of the image is %s mm', L_min)
+    print('The minimum size of the image is %s mm', L_min)
     Ly = imageloaded.shape[0]
     Lx = imageloaded.shape[1]
     Lz = imageloaded.shape[2]
@@ -58,10 +42,10 @@ def asofi(subjid, image, output_folder=None):
         L_Max = Ly
     if Lz > L_Max:
         L_Max = Lz
-    log.info('The maximum size of the image is %s mm', L_Max)
+    print('The maximum size of the image is %s mm', L_Max)
 
     voxels = np.argwhere(imageloaded > 0)
-    log.info('The non-zero voxels in the image are (the image volume) %s', voxels.shape[0])
+    print('The non-zero voxels in the image are (the image volume) %s', voxels.shape[0])
 
     Ns = []
     Ns_std = []
@@ -73,7 +57,7 @@ def asofi(subjid, image, output_folder=None):
     random.seed(1)
 
     for scale in scales:
-        log.info('Computing scale %s...', scale)
+        print('Computing scale %s...', scale)
         Ns_offset = []
         for i in range(20):
             y0_rand = -random.randint(0, scale)
@@ -90,7 +74,7 @@ def asofi(subjid, image, output_folder=None):
 
             count = np.sum(H > 0)
             Ns_offset.append(count)
-            log.info('======= Offset %s: x0_rand = %s, y0_rand = %s, z0_rand = %s, count = %s ', i + 1, x0_rand,
+            print('======= Offset %s: x0_rand = %s, y0_rand = %s, z0_rand = %s, count = %s ', i + 1, x0_rand,
                      y0_rand, z0_rand, count)
 
         Ns.append(np.mean(Ns_offset))
@@ -118,7 +102,7 @@ def asofi(subjid, image, output_folder=None):
         R2 = skl.r2_score(y_true, y_pred)
         R2_adj_tmp = 1 - (1 - R2) * ((n - 1) / (n - (k_ind + 1)))
 
-        log.info(
+        print(
             'In the interval [%s, %s] voxels, the FD is %s and the determination coefficient adjusted for the number of points is %s',
             scales[start], scales[end], -coeffs[0], R2_adj_tmp)
 
@@ -137,10 +121,10 @@ def asofi(subjid, image, output_folder=None):
 
     mfs = mfs * L_min
     Mfs = Mfs * L_min
-    log.info('The mfs automatically selected is %s', mfs)
-    log.info('The Mfs automatically selected is %s', Mfs)
-    log.info('The FD automatically selected is %s', FD)
-    log.info('The R2_adj is %s', R2_adj)
+    print('The mfs automatically selected is %s', mfs)
+    print('The Mfs automatically selected is %s', Mfs)
+    print('The FD automatically selected is %s', FD)
+    print('The R2_adj is %s', R2_adj)
     print("mfs automatically selected:", mfs)
     print("Mfs automatically selected:", Mfs)
     print("FD automatically selected:", FD)
@@ -186,10 +170,8 @@ def asofi(subjid, image, output_folder=None):
     plt.title('Variation of FD across Box Sizes')
     plt.legend()
     plt.grid(True, which="both", ls="-", alpha=0.3)
-    if output_folder is None:
-        plt.savefig(imagepath + '/' + subjid + '_' + imagename + '_LocalFD.png')
-    else:
-        plt.savefig(output_folder + '/' + subjid + '/' + subjid + '_' + imagename + '_LocalFD.png')
+    
+    plt.savefig(output_folder + '/' + subjid + '/' + subjid + '_' + '_LocalFD.png')
     plt.clf()
     plt.close()
 
@@ -244,11 +226,10 @@ def asofi(subjid, image, output_folder=None):
                 fontsize=12, bbox=dict(facecolor='white', alpha=0.8, edgecolor='gray', boxstyle='round,pad=0.5'))
 
     plt.suptitle(f"Fractal Window Visualization\nGlobal FD: {FD} (over {mfs:.2f}-{Mfs:.2f}mm)", y=1.00)
-    if output_folder is None:
-        gridviz_path = imagepath + '/' + subjid + '_' + imagename + '_GridViz.png'
-    else:
-        gridviz_path = output_folder + '/' + subjid + '/' + subjid + '_' + imagename + '_GridViz.png'
+    gridviz_path = output_folder + '/' + subjid + '/' + subjid + '_' + 'GridViz.png'
+    
     plt.savefig(gridviz_path, bbox_inches='tight')
+    
     plt.close()
 
     print("making combo plot")
@@ -342,14 +323,12 @@ def asofi(subjid, image, output_folder=None):
 
     plt.suptitle(f"Multi-scale Structural Analysis: {subjid}\n(Surface + Grid Visualization)", fontsize=16)
 
-    if output_folder is None:
-        combo_path = imagepath + '/' + subjid + '_' + imagename + '_3D_Combo.png'
-    else:
-        combo_path = output_folder + '/' + subjid + '/' + subjid + '_' + imagename + '_3D_Combo.png'
+    combo_path = output_folder + '/' + subjid + '/' + subjid + '_' + '_3D_Combo.png'
+    
     plt.savefig(combo_path, bbox_inches='tight')
     plt.close()
 
-    txt_path = os.path.join(subjid_dir, f"{subjid}_{imagename}_FractalIndices.txt")
+    txt_path = os.path.join(subjid_dir, f"{subjid}_FractalIndices.txt")
     with open(txt_path, 'w') as f:
         f.write(f"mfs (mm), {mfs}\n")
         f.write(f"Mfs (mm), {Mfs}\n")
@@ -361,7 +340,7 @@ def asofi(subjid, image, output_folder=None):
     pdf.cell(0, 10, f"Fractal Analysis Report - Subject {subjid}", ln=1, align='C')
     pdf.set_font("Arial", size=12)
     pdf.ln(10)
-    pdf.cell(0, 10, f"Image: {imagefile}", ln=1)
+    pdf.cell(0, 10, f"Subjid: {subjid}", ln=1)
     pdf.cell(0, 10, f"mfs: {mfs:.2f} mm", ln=1)
     pdf.cell(0, 10, f"Mfs: {Mfs:.2f} mm", ln=1)
     pdf.cell(0, 10, f"FD: {FD:.4f}", ln=1)
@@ -385,4 +364,4 @@ def asofi(subjid, image, output_folder=None):
     pdf.add_page()
     add_plot("Combo Plot", combo_path)
 
-    pdf.output(os.path.join(subjid_dir, f"{subjid}_{imagename}_FD_summary.pdf"))
+    pdf.output(os.path.join(subjid_dir, f"{subjid}_FD_summary.pdf"))
