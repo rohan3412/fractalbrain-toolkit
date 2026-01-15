@@ -61,60 +61,6 @@ def fract( subjid, image, output_folder = None ):
     log.info('Ended at %s', end_time_to_log)
     log.info('fract-run-time-seconds %s', elapsed_time)
     return;
-
-
-
-if __name__ == "__main__":
-    import argparse
-    import os
-    import textwrap 
-    import sys
-
-    ### MANAGEMENT OF ARGUMENTS, USAGE AND HELP ###
-    class MyParser(argparse.ArgumentParser):
-        def error(self, message):
-            sys.stderr.write('error: %s\n' % message)
-            self.print_help()
-            sys.exit(2)
-
-    parser = MyParser(prog='fractalbrain.fract',
-                      usage='%(prog)s [-h] prefix image',
-                      formatter_class=argparse.RawDescriptionHelpFormatter,
-                      epilog=textwrap.dedent('''\
-                                            Examples: 
-                                            python -m fractalbrain.fract subjid image.nii.gz
-                                            python -m fractalbrain.fract sub001 cerebralGM.nii.gz
-                                            python -m fractalbrain.fract prefixes_list.txt NifTI_list.txt
-                                            ''')
-                    )    
-    parser.add_argument('prefix', metavar='prefix', help='the prefix name of the NifTI image that will be processed or a file containing a list of prefixes')
-    parser.add_argument('image', metavar='image', help='the NifTI image that will be processed or a file containing a list of NifTI images. In the latter case, the fractal analysis will be performed on each NifTI image sequentially')
-    parser.add_argument('output_folder', nargs='?', default=None)
-    args = parser.parse_args()
-    
-    ### CHECK IF THE USER PASSED DIRECTLY THE NIFTI IMAGE OR A LIST CONTAINING THE NIFTI IMAGES ###
-    imagefile = os.path.basename(args.image)
-    imagename, image_extension1 = os.path.splitext(imagefile)
-    imagename, image_extension2 = os.path.splitext(imagename)
-    image_extension = image_extension2 + image_extension1
-    if image_extension == '.nii' or image_extension == '.nii.gz':
-        print ("The prefix is: ", args.prefix)
-        subjid=args.prefix
-        print ("The NifTI image is: ", args.image)
-        image=args.image
-        print ("The output_folder is: ", args.output_folder)
-        output_folder=args.output_folder
-        fract(subjid, image, output_folder )
-        #fract(**vars(args))
-    elif os.path.isfile(args.image) and os.path.isfile(args.prefix):
-        print (args.image, "is a file containing a list of NifTI images and", args.prefix, "is a file containing a list of prefixes")
-        with open(args.prefix, 'r') as fid_subj_list, open(args.image, 'r') as fid_imgs_list:
-            for x, y in zip(fid_subj_list, fid_imgs_list):
-                subjid = x.strip()
-                image = y.strip()
-                print ("subjid:", subjid)
-                print("image", image)
-                fract(subjid, image, output_folder)
             
     
     
