@@ -31,7 +31,7 @@ def fract( subjid, image, output_folder = None ):
         imagepath = os.getcwd()
 
     if output_folder is None:
-        log_file_name = imagepath+'/'+subjid+'_fractal_'+DATE+'_'+TIME
+        log_file_name = output_folder + '/' + subjid +'/'+subjid+'_fractal_'+DATE+'_'+TIME
     else:
         subject_folder = os.path.join(output_folder, subjid)
         
