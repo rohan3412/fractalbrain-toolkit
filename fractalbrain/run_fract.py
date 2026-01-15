@@ -10,7 +10,7 @@ def run_fract(subjid, image, output_folder=None):
         
     if isinstance(image, nib.Nifti1Image):
         fract(subjid, image, output_folder)
-    elif image_extension == '.nii' or image_extension == '.nii.gz':
+    elif isinstance(image, str) and (image.endswith('.nii') or image.endswith('.nii.gz')):
         fract(subjid, image, output_folder)
     else:
         print("ERROR: The passed image should be nifti file or nifti file path")
