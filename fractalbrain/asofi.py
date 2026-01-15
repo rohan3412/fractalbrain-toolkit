@@ -22,7 +22,11 @@ def asofi(subjid, image, output_folder):
 
     print('Started: image with prefix name %s', subjid)
 
-    img = nib.load(image)
+    if isinstance(image, nib.Nifti1Image):
+        img = image
+    else:
+        img = nib.load(image)
+        
     nii_header = img.header
     imageloaded = img.get_fdata()
 
