@@ -24,5 +24,6 @@ setup(name='fractalbrain',
         'matplotlib',
         'nibabel',
         'pandas',    
+        'scikit-learn',
     ],
      )
