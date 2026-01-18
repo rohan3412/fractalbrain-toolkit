@@ -25,5 +25,6 @@ setup(name='fractalbrain',
         'nibabel',
         'pandas',    
         'scikit-learn',
+        'skimage',
     ],
      )
