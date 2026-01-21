@@ -2,7 +2,7 @@ from .fract import fract
 import os
 import nibabel as nib
 
-def run_fract(subjid, image, output_folder=None):
+def run_fract(subjid, image, output_folder=None, scaling_method="exponential"):
     if output_folder is None:
         print ("The output_folder is the current directory")
         output_folder = os.getcwd()
