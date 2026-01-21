@@ -14,7 +14,7 @@ from matplotlib.patches import ConnectionPatch
 import matplotlib.gridspec as gridspec
 from skimage.measure import marching_cubes
 
-def asofi(subjid, image, output_folder):
+def asofi(subjid, image, output_folder, scaling_method="exponential"):
     subjid_dir = os.path.join(output_folder, subjid)
     os.makedirs(subjid_dir, exist_ok=True)
     
@@ -54,9 +54,15 @@ def asofi(subjid, image, output_folder):
     Ns = []
     Ns_std = []
     scales = []
-    stop = math.ceil(math.log2(L_Max))
-    for exp in range(stop + 1):
-        scales.append(2 ** exp)
+    
+    if scaling_method == "linear":
+        for i in range(1, int(L_Max) + 1):
+            scales.append(i)
+    else:
+        stop = math.ceil(math.log2(L_Max))
+        for exp in range(stop + 1):
+            scales.append(2 ** exp)
+            
     scales = np.asarray(scales)
     random.seed(1)
 
@@ -79,7 +85,7 @@ def asofi(subjid, image, output_folder):
             count = np.sum(H > 0)
             Ns_offset.append(count)
             print('======= Offset %s: x0_rand = %s, y0_rand = %s, z0_rand = %s, count = %s ', i + 1, x0_rand,
-                     y0_rand, z0_rand, count)
+                      y0_rand, z0_rand, count)
 
         Ns.append(np.mean(Ns_offset))
         Ns_std.append(np.std(Ns_offset))
@@ -120,8 +126,6 @@ def asofi(subjid, image, output_folder):
             Mfs = scales[end]
             fsw_index = k
             coeffs_selected = coeffs
-
-        FD = round(FD, 4)
 
     mfs = mfs * L_min
     Mfs = Mfs * L_min
@@ -369,3 +373,5 @@ def asofi(subjid, image, output_folder):
     add_plot("Combo Plot", combo_path)
 
     pdf.output(os.path.join(subjid_dir, f"{subjid}_FD_summary.pdf"))
+
+    return FD
