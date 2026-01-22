@@ -56,7 +56,8 @@ def asofi(subjid, image, output_folder, scaling_method="exponential"):
     scales = []
     
     if scaling_method == "linear":
-        for i in range(1, int(L_Max) + 1):
+        limit = min(int(L_Max), 16)
+        for i in range(1, limit + 1):
             scales.append(i)
     else:
         stop = math.ceil(math.log2(L_Max))
