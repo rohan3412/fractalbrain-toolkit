@@ -14,7 +14,7 @@ from matplotlib.patches import ConnectionPatch
 import matplotlib.gridspec as gridspec
 from skimage.measure import marching_cubes
 
-def asofi(subjid, image, output_folder, scaling_method="exponential"):
+def asofi(subjid, image, output_folder, scaling_method="exponential", save_plots=True):
     subjid_dir = os.path.join(output_folder, subjid)
     os.makedirs(subjid_dir, exist_ok=True)
     
@@ -134,9 +134,9 @@ def asofi(subjid, image, output_folder, scaling_method="exponential"):
     print('The Mfs automatically selected is %s', Mfs)
     print('The FD automatically selected is %s', FD)
     print('The R2_adj is %s', R2_adj)
-    print("mfs automatically selected:", mfs)
-    print("Mfs automatically selected:", Mfs)
-    print("FD automatically selected:", FD)
+
+    if not save_plots:
+        return FD
 
     plt.figure()
     plt.errorbar(scales, Ns, yerr=Ns_std, fmt='o', ecolor='red', capsize=4, label='Mean Count ± Std Dev')
